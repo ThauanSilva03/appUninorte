@@ -8,6 +8,10 @@ const Login = () => {
         router.navigate('cadastro');
     }
 
+    const login = () => {
+        router.navigate('(tabs)');
+    }
+
     return (
         <View style = {styles.container}>
             <View>
@@ -27,7 +31,7 @@ const Login = () => {
                 <TextInput placeholder="Password" style={styles.inputs} secureTextEntry/>
             </View>
             <View>
-                <TouchableOpacity style = {styles.button}>
+                <TouchableOpacity style = {styles.button} onPress = {login}>
                     <Text style = {styles.texts}>Login</Text>
                 </TouchableOpacity>
             </View>
