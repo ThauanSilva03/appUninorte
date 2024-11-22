@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginLeft: 15,
         marginBottom: 5,
-        fontSize:18,
+        fontSize:16,
         color: '#1E1E1E'
     },
     txtButton: {
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         marginLeft: 15,
         borderRadius: 10,
-        fontSize: 18,
+        fontSize: 15,
         paddingLeft: 15
     },
     button: {
