@@ -14,6 +14,8 @@ const RootLayout = () => {
                     headerShown: false
                 }
             }/>
+            <Stack.Screen name="editarPerfil"/>
+            <Stack.Screen name="camera" />
         </Stack>
     )
 }

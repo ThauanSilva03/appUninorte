@@ -1,15 +1,50 @@
-import React from "react"
-import { Text, View, TextInput, StyleSheet, TouchableOpacity, Image} from "react-native"
+import React, {useState} from "react"
+import { Text, View, TextInput, StyleSheet, TouchableOpacity, Image, Alert} from "react-native"
 import { router } from "expo-router"
+import useAuthStore from "../store/authStore"
+
 
 const Login = () => {
 
+    const [usuario, setUsuario] = useState("");
+    const [senha, setSenha] = useState("");
+
+    const {login, mensagemErro, usuarioLogado} = useAuthStore();
+
+    const handleInputUsuario = (text) => {
+        setUsuario(text);
+        console.log(usuario)
+    }
+
+    const handleInputSenha = (text) => {
+        setSenha(text);
+        console.log(senha)
+    }
+    
     const register = () => {
         router.navigate('cadastro');
     }
 
-    const login = () => {
-        router.navigate('(tabs)');
+    // const login = () => {
+    //     router.navigate('(tabs)');
+    // }
+
+    const logar = async () =>{
+
+        console.log("teste",mensagemErro);
+
+        if(usuario && senha){
+            login(usuario, senha);
+            
+        }else{
+            Alert.alert("Preencha os campos usuário e senha");
+        }
+        if(mensagemErro != ""){
+            Alert.alert(mensagemErro);
+        }
+        if(usuarioLogado){
+            router.replace('(tabs)');
+        }
     }
 
     return (
@@ -24,14 +59,22 @@ const Login = () => {
             </View>
             <View>
                 <Text style={styles.labelText}>User</Text>
-                <TextInput placeholder="User" style={styles.inputs}/>
+                <TextInput 
+                    placeholder="User" 
+                    style={styles.inputs} 
+                    onChangeText = {handleInputUsuario} 
+                    value = {usuario}/>
             </View>
             <View>
                 <Text style={styles.labelText}>Password</Text>
-                <TextInput placeholder="Password" style={styles.inputs} secureTextEntry/>
+                <TextInput 
+                    placeholder="Password" 
+                    style={styles.inputs}
+                    onChangeText = {handleInputSenha} 
+                    secureTextEntry/>
             </View>
             <View>
-                <TouchableOpacity style = {styles.button} onPress = {login}>
+                <TouchableOpacity style = {styles.button} onPress = {logar} >
                     <Text style = {styles.texts}>Login</Text>
                 </TouchableOpacity>
             </View>
