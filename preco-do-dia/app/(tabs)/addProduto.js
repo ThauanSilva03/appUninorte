@@ -1,11 +1,13 @@
-import React, {useState} from "react";
-import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity, PermissionsAndroid } from "react-native"
+import React, {useState, useEffect} from "react";
+import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity } from "react-native"
 import axios from "axios";
-import * as ImagePicker from 'react-native-image-picker';
 import RNPickerSelect from 'react-native-picker-select'
 import { router } from "expo-router";
+import Camera from "../camera";
 
 export default function Tab() {
+
+    const {photoUri} = Camera();
 
     const [local, setLocal] = useState('');
     const [name, setName] = useState('');
@@ -14,58 +16,15 @@ export default function Tab() {
     const [observation, setObservation] = useState('');
     const [imageUri, setImageUri] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const [options, setOptions] = useState([]);
+    const [selectedOption, setSelectedOption] = useState(null);
     
+    const [categorias, setCategorias] = useState([]);
+    const [selectedCategoria, setSelectedCatoria] = useState(null);
+
     const openCamera = () => {
       router.navigate("camera");
-    }
-
-    const handelAddFoto = () => {
-      ImagePicker.launchCamera(
-        {
-          includeBase64: false,
-          mediaType: 'photo',
-          quality: 0.8,
-        },
-        async (response) => {
-          if (response.didCancel) {
-            console.log('User cancelled image picker');
-          } else if (response.error) {
-            console.log('ImagePicker Error: ', response.error);
-          } else {
-            
-          }
-        },
-      );
-
-      console.log("Camera")
-    };
-
-
-    const requestCameraPermission = async () => {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.CAMERA,
-          {
-            title: "App Camera Permission",
-            message:"App needs access to your camera ",
-            buttonNeutral: "Ask Me Later",
-            buttonNegative: "Cancel",
-            buttonPositive: "OK"
-          }
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log("Camera permission given");
-          handelAddFoto();
-        } else {
-          console.log("Camera permission denied");
-        }
-      } catch (err) {
-        console.warn(err);
-      }
-    };
-
-    const handleDeleteFoto = () => {
-      setImageUri('');
     }
 
     const handleSubmit = async () => {
@@ -73,11 +32,10 @@ export default function Tab() {
         Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios.');
         return;
       }
-
+      console.log("Salvando dados para enviar...")
       setLoading(true);
-      console.log("Ta criando as coisa");
       const formData = new FormData();
-      formData.append('local', local);
+      formData.append('local', selectedOption);
       formData.append('name', name);
       formData.append('price', price);
       formData.append('category', category);
@@ -108,7 +66,6 @@ export default function Tab() {
         }else{
           Alert.alert('Erro', 'Ocorreu um problema ao cadastrar o produto.');
         }
-
       } catch(error){
         console.error('Erro ao salvar o produto', error);
         Alert.alert('Erro', 'Não foi possível salvar o produto.');
@@ -116,24 +73,56 @@ export default function Tab() {
         setLoading(false);
       }
     };
+  
+    useEffect(() => {
+      // Fazendo a requisição
+      const fetchData = async () => {
+        try {
+          const response = await fetch('https://api-produtos-6p7n.onrender.com/locations');
+          const data = await response.json();
+          const formattedOptions = data.map((item) => ({
+            label: item.nome,
+            value: item.nome
+          }));
 
-    
+          setOptions(formattedOptions);
+        } catch (error) {
+          console.error('Erro ao buscar dados: ', error);
+        }
+      };
+  
+      fetchData();
+    }, []);
+
+    useEffect(() => {
+      const fetchData = async () => {
+        try{
+          const response = await fetch('https://api-produtos-6p7n.onrender.com/categories');
+          const data = await response.json();
+          const formattedData = data.map((item) => ({
+            label: item.nome,
+            value: item.nome
+          }));
+          setCategorias(formattedData);
+        }catch(error){
+          console.log('Erro ao buscar dados: ', error)
+        }
+      };
+      fetchData();
+    },[]);
+
     return (
       <View style={styles.container}>
         <Text style={styles.labelTxt}>Local *</Text>
         <View style = {styles.pickerContainer}>
           <RNPickerSelect 
-            onValueChange={(value) => setLocal(value)}
-            items={[
-              { label: 'Loja A', value: 'Loja A' },
-              { label: 'Loja B', value: 'Loja B' },
-              { label: 'Loja C', value: 'Loja C' },
-            ]}
+            onValueChange={(value) => setSelectedOption(value)}
+            items={options}
             placeholder={{ label: 'Value', value: null }}
-            value={local}
+            value={selectedOption}
           />
         </View>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={console.log({selectedOption})}>
           <Text style={styles.suggestLink}>Sugerir Local</Text>
         </TouchableOpacity>
         <Text style={styles.labelTxt}>Nome *</Text>
@@ -154,14 +143,10 @@ export default function Tab() {
         <Text style={styles.labelTxt}>Categoria *</Text>
         <View style={styles.pickerContainer}>
         <RNPickerSelect 
-            onValueChange={(value) => setCategory(value)}
-            items={[
-              { label: 'Category A', value: 'Category A' },
-              { label: 'Category B', value: 'Category B' },
-              { label: 'Category C', value: 'Category C' },
-            ]}
+            onValueChange={(value) => setSelectedCatoria(value)}
+            items={categorias}
             placeholder={{ label: 'Value', value: null }}
-            value={category}
+            value={selectedCategoria}
           />
         </View>
         <Text style={styles.labelTxt}>Observação</Text>
@@ -178,9 +163,9 @@ export default function Tab() {
           <TouchableOpacity style={styles.btnFoto} onPress = {openCamera}>
             <Text style={styles.btnTxt}>Adicionar foto</Text>
           </TouchableOpacity>
-          {imageUri ? (
+          {photoUri ? (
             <View>
-              <Image source={{ uri: imageUri }}/>
+              <Image source = {{uri: photoUri}}/>
               <TouchableOpacity>
                 <Text>Excluir</Text>
               </TouchableOpacity>
@@ -212,7 +197,7 @@ const styles = StyleSheet.create({
       marginTop: 10,
       marginLeft: 15,
       marginBottom: 5,
-      fontSize:16,
+      fontSize:12,
       color: '#1E1E1E'
     },
     input: {
@@ -224,7 +209,7 @@ const styles = StyleSheet.create({
       borderRadius: 5,
       marginLeft: 15,
       borderRadius: 10,
-      fontSize: 15,
+      fontSize: 12,
       paddingLeft: 15
     },
     inputObs: {
@@ -236,7 +221,7 @@ const styles = StyleSheet.create({
       borderRadius: 5,
       marginLeft: 15,
       borderRadius: 10,
-      fontSize: 15,
+      fontSize: 12,
       paddingLeft: 15,
       textAlignVertical: 'top'
     },
@@ -284,5 +269,9 @@ const styles = StyleSheet.create({
     },
     btnTxt: {
       color: '#F5F5F5'
+    },
+    image: {
+      width: 60,
+      height: 60,
     }
 });

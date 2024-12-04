@@ -1,7 +1,17 @@
-import React from "react";
+import React, {useState} from "react";
 import {View, Text, TextInput, StyleSheet, TouchableOpacity} from "react-native"
+import RNPickerSelect from 'react-native-picker-select'
 
 const addLocal = () => {
+
+    const [nome, setNome] = useState('')
+    const [cep, setCep] = useState('')
+    const [logadouro, setLogadouro] = useState('')
+    const [numero, setNumero] = useState('')
+    const [bairro, setBairro] = useState([])
+    const [ciadade, setCidade] = useState('')
+    const [estado, setEstado] = useState('')
+
     return (
         <View style={styles.container}> 
             <Text style = {styles.txt}>Nome *</Text>
@@ -28,11 +38,17 @@ const addLocal = () => {
             >
             </TextInput>
             <Text style = {styles.txt}>Bairro</Text>
-            <TextInput
-                placeholder = "Value"
-                style = {styles.inputs}
-            >
-            </TextInput>
+            <View style = {styles.pickerContainer}>
+                <RNPickerSelect 
+                    onValueChange={(value) => setLocal(value)}
+                    items={[
+                    { label: 'Loja A', value: 'Loja A' },
+                    { label: 'Loja B', value: 'Loja B' },
+                    { label: 'Loja C', value: 'Loja C' },
+                    ]}
+                    placeholder={{ label: 'Value', value: null }}
+                />
+            </View>
             <Text style = {styles.txt}>Cidade</Text>
             <TextInput
                 placeholder = "Value"

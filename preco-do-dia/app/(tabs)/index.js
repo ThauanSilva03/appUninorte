@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Image,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator } 
+from "react-native";
 import axios from "axios";
 
 export default function ProductList() {
@@ -35,14 +29,15 @@ export default function ProductList() {
         style={styles.image}
       />
       <View style={styles.infoContainer}>
-        <Text style={styles.title}>Nome: {item.nome}</Text>
-        <Text style={styles.text}>Preço: R$ {item.preco}</Text>
+        <Text style={styles.title}>{item.nome}</Text>
         <Text style={styles.text}>Descrição: {item.descricao || "N/A"}</Text>
         <Text style={styles.text}>Usuário: {item.usuario}</Text>
         <Text style={styles.text}>Categoria: {item.Category?.nome}</Text>
         <Text style={styles.text}>Local: {item.Location?.nome}</Text>
-        <Text style={styles.text}>Criado em: {new Date(item.createdAt).toLocaleDateString()}</Text>
-        <Text style={styles.text}>Atualizado em: {new Date(item.updatedAt).toLocaleDateString()}</Text>
+        <View style={{flexDirection: 'row', alignSelf: 'flex-end', marginRight: 10}}>
+          <Text style={styles.textRS}>R$</Text>
+          <Text style={styles.textPrice}>{item.preco}</Text>
+        </View>
       </View>
     </View>
   );
@@ -81,25 +76,24 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#fff",
     marginBottom: 10,
-    borderRadius: 10,
-    overflow: "hidden",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
+    borderWidth: 1, // Adicionando borda
+    borderColor: "#ddd", // Cor da borda
+    borderRadius: 10, // Borda arredondada
+    flexDirection: "row", // Imagem à esquerda e informações à direita
+    padding: 10, // Padding geral dentro do card
   },
   image: {
-    width: "100%",
-    height: 200,
+    width: 100, // Tamanho da imagem
+    height: 100, // Tamanho da imagem
+    marginRight: 10, // Espaço entre imagem e texto
+    borderRadius: 8, // Bordas arredondadas para a imagem
     resizeMode: "cover",
   },
   infoContainer: {
-    padding: 10,
+    flex: 1, // Faz as informações ocuparem o restante do espaço
   },
   title: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 20,
     color: "#333",
   },
   text: {
@@ -107,4 +101,12 @@ const styles = StyleSheet.create({
     color: "#555",
     marginVertical: 2,
   },
+  textPrice: {
+    fontSize: 30,
+    color: "#28a745", // Cor verde para o preço
+  },
+  textRS: {
+    fontSize: 14,
+    color: "#28a745"
+  }
 });
