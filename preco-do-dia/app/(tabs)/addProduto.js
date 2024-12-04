@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity } from "react-native"
-import axios from "axios";
+import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity, ScrollView } from "react-native"
 import RNPickerSelect from 'react-native-picker-select'
 import { router } from "expo-router";
 import Camera from "../camera";
@@ -14,7 +13,6 @@ export default function Tab() {
     const [price, setPrice] = useState('');
     const [category, setCategory] = useState('');
     const [observation, setObservation] = useState('');
-    const [imageUri, setImageUri] = useState('');
     const [loading, setLoading] = useState(false);
 
     const [options, setOptions] = useState([]);
@@ -28,51 +26,55 @@ export default function Tab() {
     }
 
     const handleSubmit = async () => {
-      if(!local || !name || !price || !category || !imageUri){
+      if (!selectedOption || !name || !price || !selectedCategoria) {
         Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios.');
         return;
       }
-      console.log("Salvando dados para enviar...")
+    
+      console.log("Salvando dados para enviar...");
       setLoading(true);
+    
       const formData = new FormData();
       formData.append('local', selectedOption);
-      formData.append('name', name);
-      formData.append('price', price);
-      formData.append('category', category);
-      formData.append('observation', observation);
-      formData.append('image', {
-        uri: imageUri,
-        type: 'image/jpeg',
-        name: 'produto.jpg',
-      });
-
-      try{
-        const response = await axios.post('https://api-produtos-6p7n.onrender.com/products',formData,
-          {
-           headers: {
+      formData.append('nome', name);
+      formData.append('preco', price);
+      formData.append('categoria', selectedCategoria);
+      formData.append('observacao', observation);
+      
+    
+      try {
+        const response = await fetch('https://api-produtos-6p7n.onrender.com/products', {
+          method: 'POST',
+          headers: {
             'Content-Type': 'multipart/form-data',
-           },
-          }
-        );
+          },
+          body: formData,
+        });
+    
+        console.log(response)
 
-        if(response.status === 201){
+        if (response.ok) {
           Alert.alert('Sucesso', 'Produto cadastrado com sucesso!');
+          // Limpa os campos
           setLocal('');
           setName('');
           setPrice('');
           setCategory('');
           setObservation('');
-          setImageUri('');
-        }else{
+          setSelectedOption(null);
+          setSelectedCategoria(null);
+        } else {
           Alert.alert('Erro', 'Ocorreu um problema ao cadastrar o produto.');
         }
-      } catch(error){
-        console.error('Erro ao salvar o produto', error);
+      } catch (error) {
+        console.error('Erro ao salvar o produto:', error);
         Alert.alert('Erro', 'Não foi possível salvar o produto.');
-      } finally{
+      } finally {
         setLoading(false);
       }
     };
+    
+    
   
     useEffect(() => {
       // Fazendo a requisição
@@ -112,80 +114,82 @@ export default function Tab() {
     },[]);
 
     return (
-      <View style={styles.container}>
-        <Text style={styles.labelTxt}>Local *</Text>
-        <View style = {styles.pickerContainer}>
-          <RNPickerSelect 
-            onValueChange={(value) => setSelectedOption(value)}
-            items={options}
-            placeholder={{ label: 'Value', value: null }}
-            value={selectedOption}
-          />
-        </View>
-        <TouchableOpacity onPress={console.log({selectedOption})}>
-          <Text style={styles.suggestLink}>Sugerir Local</Text>
-        </TouchableOpacity>
-        <Text style={styles.labelTxt}>Nome *</Text>
-        <TextInput 
-          placeholder = "Value" 
-          style = {styles.input}
-          value = {name}
-          onChangeText = {setName}  
-        />
-        <Text style={styles.labelTxt}>Preço *</Text>
-        <TextInput 
-          placeholder = "Value" 
-          style = {styles.input}
-          value = {price}
-          onChangeText = {setPrice}
-          keyboardType = "numeric"  
-        />
-        <Text style={styles.labelTxt}>Categoria *</Text>
-        <View style={styles.pickerContainer}>
-        <RNPickerSelect 
-            onValueChange={(value) => setSelectedCatoria(value)}
-            items={categorias}
-            placeholder={{ label: 'Value', value: null }}
-            value={selectedCategoria}
-          />
-        </View>
-        <Text style={styles.labelTxt}>Observação</Text>
-        <TextInput 
-          placeholder = "Value" 
-          style = {styles.inputObs} 
-          value = {observation}
-          onChangeText = {setObservation}
-          multiline
-        />
-
-        <Text style={styles.labelTxt}>Fotos *</Text>
-        <View style={styles.containerFoto}>
-          <TouchableOpacity style={styles.btnFoto} onPress = {openCamera}>
-            <Text style={styles.btnTxt}>Adicionar foto</Text>
+      <ScrollView>
+        <View style={styles.container}>
+          <Text style={styles.labelTxt}>Local *</Text>
+          <View style = {styles.pickerContainer}>
+            <RNPickerSelect 
+              onValueChange={(value) => setSelectedOption(value)}
+              items={options}
+              placeholder={{ label: 'Value', value: null }}
+              value={selectedOption}
+            />
+          </View>
+          <TouchableOpacity onPress={console.log({selectedOption})}>
+            <Text style={styles.suggestLink}>Sugerir Local</Text>
           </TouchableOpacity>
-          {photoUri ? (
-            <View>
-              <Image source = {{uri: photoUri}}/>
-              <TouchableOpacity>
-                <Text>Excluir</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <Text>Nenhuma imagem selecionada</Text>
-          )}
+          <Text style={styles.labelTxt}>Nome *</Text>
+          <TextInput 
+            placeholder = "Value" 
+            style = {styles.input}
+            value = {name}
+            onChangeText = {setName}  
+          />
+          <Text style={styles.labelTxt}>Preço *</Text>
+          <TextInput 
+            placeholder = "Value" 
+            style = {styles.input}
+            value = {price}
+            onChangeText = {setPrice}
+            keyboardType = "numeric"  
+          />
+          <Text style={styles.labelTxt}>Categoria *</Text>
+          <View style={styles.pickerContainer}>
+          <RNPickerSelect 
+              onValueChange={(value) => setSelectedCatoria(value)}
+              items={categorias}
+              placeholder={{ label: 'Value', value: null }}
+              value={selectedCategoria}
+            />
+          </View>
+          <Text style={styles.labelTxt}>Observação</Text>
+          <TextInput 
+            placeholder = "Value" 
+            style = {styles.inputObs} 
+            value = {observation}
+            onChangeText = {setObservation}
+            multiline
+          />
+
+          <Text style={styles.labelTxt}>Fotos *</Text>
+          <View style={styles.containerFoto}>
+            <TouchableOpacity style={styles.btnFoto} onPress = {openCamera}>
+              <Text style={styles.btnTxt}>Adicionar foto</Text>
+            </TouchableOpacity>
+            {photoUri ? (
+              <View>
+                <Image source = {{uri: photoUri}}/>
+                <TouchableOpacity>
+                  <Text>Excluir</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <Text>Nenhuma imagem selecionada</Text>
+            )}
+          </View>
+
+        <TouchableOpacity
+          style={[styles.button, loading && { opacity: 0.7 }]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          <Text style={styles.btnTxt}>
+            {loading ? 'Salvando...' : 'Salvar'}
+          </Text>
+        </TouchableOpacity>
+
         </View>
-
-       <TouchableOpacity
-        style={[styles.button, loading && { opacity: 0.7 }]}
-        onPress={handleSubmit}
-        disabled={loading}
-       >
-        <Text style={styles.btnTxt}>
-          {loading ? 'Salvando...' : 'Salvar'}
-        </Text>
-       </TouchableOpacity>
-
-      </View>
+      </ScrollView>
     );
 }
   

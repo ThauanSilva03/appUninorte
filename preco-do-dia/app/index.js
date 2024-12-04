@@ -25,10 +25,6 @@ const Login = () => {
         router.navigate('cadastro');
     }
 
-    // const login = () => {
-    //     router.navigate('(tabs)');
-    // }
-
     const logar = async () =>{
 
         console.log("teste",mensagemErro);

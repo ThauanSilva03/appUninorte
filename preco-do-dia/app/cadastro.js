@@ -1,31 +1,33 @@
 import React from "react"
-import {Text, View, TextInput, TouchableOpacity, StyleSheet} from "react-native"
+import {Text, View, TextInput, TouchableOpacity, StyleSheet, ScrollView} from "react-native"
 
 const Cadastro = () => {
     return (
-        <View style={styles.container}>
-            <View>
-                <Text style = {styles.labelText}>E-mail</Text>
-                <TextInput style = {styles.input} placeholder = "E-mail"></TextInput>
+        <ScrollView>
+            <View style={styles.container}>
+                <View>
+                    <Text style = {styles.labelText}>E-mail</Text>
+                    <TextInput style = {styles.input} placeholder = "E-mail"></TextInput>
+                </View>
+                <View>
+                    <Text style = {styles.labelText}>Senha</Text>
+                    <TextInput style = {styles.input} placeholder = "Senha" secureTextEntry></TextInput>
+                </View>
+                <View>
+                    <Text style = {styles.labelText}>Nome completo</Text>
+                    <TextInput style = {styles.input} placeholder = "Nome completo"></TextInput>
+                </View>
+                <View>
+                    <Text style = {styles.labelText}>Usuário</Text>
+                    <TextInput style = {styles.input} placeholder = "Usuário"></TextInput>
+                </View>
+                <View>
+                    <TouchableOpacity style = {styles.button}>
+                        <Text style = {styles.texts}>Salvar</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
-            <View>
-                <Text style = {styles.labelText}>Senha</Text>
-                <TextInput style = {styles.input} placeholder = "Senha" secureTextEntry></TextInput>
-            </View>
-            <View>
-                <Text style = {styles.labelText}>Nome completo</Text>
-                <TextInput style = {styles.input} placeholder = "Nome completo"></TextInput>
-            </View>
-            <View>
-                <Text style = {styles.labelText}>Usuário</Text>
-                <TextInput style = {styles.input} placeholder = "Usuário"></TextInput>
-            </View>
-            <View>
-                <TouchableOpacity style = {styles.button}>
-                    <Text style = {styles.texts}>Salvar</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+        </ScrollView>
     )
 
 }

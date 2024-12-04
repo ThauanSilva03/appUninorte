@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator } 
-from "react-native";
+import { View, Text, StyleSheet, FlatList, Image, ActivityIndicator, TextInput } from "react-native";
 import axios from "axios";
 
 export default function ProductList() {
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]); // Para produtos filtrados
   const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState(""); // Estado para a barra de pesquisa
 
   useEffect(() => {
     fetchProducts();
@@ -15,10 +16,23 @@ export default function ProductList() {
     try {
       const response = await axios.get("https://api-produtos-6p7n.onrender.com/products");
       setProducts(response.data);
+      setFilteredProducts(response.data); // Inicializa produtos filtrados com todos os produtos
     } catch (error) {
       console.error("Erro ao buscar produtos: ", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSearch = (text) => {
+    setSearch(text);
+    if (text === "") {
+      setFilteredProducts(products); // Mostra todos os produtos se a barra de pesquisa estiver vazia
+    } else {
+      const filtered = products.filter((item) =>
+        item.nome.toLowerCase().includes(text.toLowerCase()) // Filtra produtos pelo nome
+      );
+      setFilteredProducts(filtered);
     }
   };
 
@@ -34,7 +48,7 @@ export default function ProductList() {
         <Text style={styles.text}>Usuário: {item.usuario}</Text>
         <Text style={styles.text}>Categoria: {item.Category?.nome}</Text>
         <Text style={styles.text}>Local: {item.Location?.nome}</Text>
-        <View style={{flexDirection: 'row', alignSelf: 'flex-end', marginRight: 10}}>
+        <View style={{ flexDirection: "row", alignSelf: "flex-end", marginRight: 10 }}>
           <Text style={styles.textRS}>R$</Text>
           <Text style={styles.textPrice}>{item.preco}</Text>
         </View>
@@ -53,8 +67,14 @@ export default function ProductList() {
 
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Pesquisar produtos..."
+        value={search}
+        onChangeText={handleSearch}
+      />
       <FlatList
-        data={products}
+        data={filteredProducts}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderProduct}
       />
@@ -73,24 +93,33 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  searchBar: {
+    height: 40,
+    borderColor: "#ddd",
+    borderWidth: 1,
+    borderRadius: 20,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    backgroundColor: "#fff",
+  },
   card: {
     backgroundColor: "#fff",
     marginBottom: 10,
-    borderWidth: 1, // Adicionando borda
-    borderColor: "#ddd", // Cor da borda
-    borderRadius: 10, // Borda arredondada
-    flexDirection: "row", // Imagem à esquerda e informações à direita
-    padding: 10, // Padding geral dentro do card
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    flexDirection: "row",
+    padding: 10,
   },
   image: {
-    width: 100, // Tamanho da imagem
-    height: 100, // Tamanho da imagem
-    marginRight: 10, // Espaço entre imagem e texto
-    borderRadius: 8, // Bordas arredondadas para a imagem
+    width: 100,
+    height: 100,
+    marginRight: 10,
+    borderRadius: 8,
     resizeMode: "cover",
   },
   infoContainer: {
-    flex: 1, // Faz as informações ocuparem o restante do espaço
+    flex: 1,
   },
   title: {
     fontSize: 20,
@@ -102,11 +131,11 @@ const styles = StyleSheet.create({
     marginVertical: 2,
   },
   textPrice: {
-    fontSize: 30,
-    color: "#28a745", // Cor verde para o preço
+    fontSize: 40,
+    color: "#28a745",
   },
   textRS: {
     fontSize: 14,
-    color: "#28a745"
-  }
+    color: "#28a745",
+  },
 });
