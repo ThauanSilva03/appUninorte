@@ -101,5 +101,3 @@ O aplicativo consome as seguintes APIs:
    ```
 
 5. Abra o aplicativo **Expo Go** no celular e escaneie o QR Code gerado no terminal ou na interface do Expo.
-
----
