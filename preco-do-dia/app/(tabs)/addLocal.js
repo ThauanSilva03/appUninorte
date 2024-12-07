@@ -1,83 +1,95 @@
 import React, {useState, useEffect} from "react";
 import {View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView} from "react-native"
-import RNPickerSelect from 'react-native-picker-select'
+import { Picker } from "@react-native-picker/picker";
+import axios from "axios";
 
 const addLocal = () => {
 
-    const [nome, setNome] = useState('')
-    const [cep, setCep] = useState('')
-    const [logadouro, setLogadouro] = useState('')
-    const [numero, setNumero] = useState('')
-    const [bairro, setBairro] = useState([])
-    const [ciadade, setCidade] = useState('')
-    const [estado, setEstado] = useState('')
+
+    const api = axios.create({
+        baseURL: "https://api-produtos-6p7n.onrender.com",
+        headers: {'Content-Type':'application/json'}
+    });
+
+    const [ loc, setLoc] = useState({
+        nome: '',
+        cep: '',
+        logradouro: '',
+        numero: '',
+        bairro: '',
+        cidade: '',
+        estado: '',
+    })
+
     
-    const [loading, setLoading] = useState(false);
 
-    const [selectedBairro, setSelectedBairro] = useState(null)
+    const handleInputNome = (text) => {
+        setLoc({...loc, nome: text})
+    }
+    
+    const handleInputCEP = (text) => {
+        setLoc({...loc, cep:text})
+    }
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try{
-                const response = await fetch('https://api-produtos-6p7n.onrender.com/locations');
-                const data = await response.json();
-                const formattedData = data.map((item) => ({
-                    label: item.bairro,
-                    value: item.bairro
-                }));
-                setBairro(formattedData);
-            } catch(error){
-                console.log('Erro ao buscar dados: ', error);
-            }
+    const handleInputLog = (text) => {
+        setLoc({...loc, logradouro:text})
+    }
+
+    const handleInputNum = (text) => {
+        setLoc({...loc, numero:text})
+    }
+
+    const handleInputBairro = (text) => {
+        setLoc({...loc, bairro:text})
+    }
+
+    const handleInputCidade = (text) => {
+        setLoc({...loc, cidade:text})
+    }
+
+    const handleInputEstado = (text) => {
+        setLoc({...loc, estado:text})
+    }
+
+    useEffect(() =>{
+        async function loadLocations(){
+            const response = await api.get('/locations');
+            setLocations(response.data);
         }
-        fetchData();
-    }, []);
 
-    const handleSubmit = async () => {
-        if(!nome){
-            Alert.alert('Erro','Por favor, preencha todos os campos obrigatórios');
-            return;
-        }
-        
-        setLoading(true);
+        loadLocations();
+    }, [])
 
-        const formData = new FormData();
-        formData.append('nome',nome);
-        formData.append('cep', cep);
-        formData.append('logadouro', logadouro);
-        formData.append('numero', numero);
-        formData.append('bairro', bairro);
-        formData.append('cidade', ciadade);
-        formData.append('estado', estado);
 
+    const cadastrar = async (loc) => {
         try {
-            const response = await fetch('https://api-produtos-6p7n.onrender.com/locations',{
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'multipart/form-data',
+            const url = 'https://api-produtos-6p7n.onrender.com/locations';
+    
+            const response = await fetch(url, {
+                method: 'POST', 
+                headers: { 
+                    'Content-Type': 'application/json', 
                 },
-                body: formData,
+                credentials: 'include', 
+                body: JSON.stringify(loc), 
             });
-
-            console.log(response)
-
-            if(response.ok){
-                Alert.alert('Sucesso', 'Produto cadastrado com sucesso!');
-                setNome('');
-                setCep('');
-                setLogadouro('');
-                setNumero('');
-                setSelectedBairro('');
-                setCidade('');
-            }else{
-                Alert.alert('Erro','Ocorreu um problema ao cadastrar o produto.');
+    
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Location added:', data);
+                alert("Local cadastrado com sucesso!");
+            } else {
+                alert("Erro ao cadastrar local!");
             }
-        } catch(error){
-            console.error('Erro', 'Não foi possível salvar o produto');
-        }finally{
-            setLoading(false);
+        } catch (error) {
+            console.error('Error:', error);
         }
-    };
+
+    }
+
+    function addLocal() {
+        cadastrar(loc);
+    }
 
     return (
         <ScrollView>
@@ -86,59 +98,57 @@ const addLocal = () => {
             <TextInput
                 placeholder = "Value"
                 style = {styles.inputs}
-                value = {nome}
-                onChangeText = {setNome}
+                onChangeText = {handleInputNome}
+                inputMode="text"
             ></TextInput>
             <Text style = {styles.txt}>CEP</Text>
             <TextInput
                 placeholder = "Value"
                 style = {styles.inputs}
-                value = {cep}
-                onChangeText = {setCep}
+                onChangeText = {handleInputCEP}
+                inputMode="text"
             >
             </TextInput>
             <Text style = {styles.txt}>Logadouro</Text>
             <TextInput
                 placeholder = "Value"
                 style = {styles.inputs}
-                value = {logadouro}
-                onChangeText = {setLogadouro}
+                onChangeText = {handleInputLog}
+                inputMode="text"
             >
             </TextInput>
             <Text style = {styles.txt}>Nº</Text>
             <TextInput
                 placeholder = "Value"
                 style = {styles.inputs}
-                value = {numero}
-                onChangeText = {setNumero}
+                onChangeText = {handleInputNum}
+                inputMode="text"
             >
             </TextInput>
             <Text style = {styles.txt}>Bairro</Text>
-            <View style = {styles.pickerContainer}>
-                <RNPickerSelect 
-                    onValueChange={(value) => setSelectedBairro(value)}
-                    items={bairro}
-                    placeholder={{ label: 'Value', value: null }}
-                    value={selectedBairro}
-                />
-            </View>
+            <TextInput
+                placeholder = "Value"
+                style = {styles.inputs}
+                onChangeText = {handleInputBairro}
+                inputMode="text"
+            />
             <Text style = {styles.txt}>Cidade</Text>
             <TextInput
                 placeholder = "Value"
                 style = {styles.inputs}
-                value = {ciadade}
-                onChangeText = {setCidade}
+                onChangeText = {handleInputCidade}
+                inputMode="text"
             >
             </TextInput>
             <Text style = {styles.txt}>Estado</Text>
             <TextInput
                 placeholder = "Value"
                 style = {styles.inputs}
-                value = {estado}
-                onChangeText = {setEstado}
+                onChangeText = {handleInputEstado}
+                inputMode="text"
             >
             </TextInput>
-            <TouchableOpacity style = {styles.button} onPress={handleSubmit} disable={loading}>
+            <TouchableOpacity style = {styles.button} onPress={addLocal}>
                 <Text style={ styles.txtButton }>Salvar</Text>
             </TouchableOpacity>
         </View>

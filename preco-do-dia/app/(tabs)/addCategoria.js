@@ -1,15 +1,40 @@
-import React from "react";
+import React, {useEffect, useState}  from "react";
 import {View, Text, TextInput, StyleSheet, TouchableOpacity} from "react-native"
+import axios from "axios";
 
 const addCategoria = () => {
+
+    const [nome, setNome] = useState('');
+
+
+    const cadastrar = async () => {
+        const data = { nome }
+
+        console.log(data);
+
+        const url = "https://api-produtos-6p7n.onrender.com/categories/add"
+
+        const response = await axios.post(url, data);
+
+        console.log(data, ' >>> ', response, ' >>> ', response.status, ' >>> ', response.data);
+
+        if(response.status == 201){
+            alert("Categoria cadastrado com sucesso!");
+        }else{
+            alert("Erro ao cadastrar a categoria!");
+        }
+    };
+    
     return (
         <View>
             <Text style = {styles.txt}>Nome *</Text>
             <TextInput
                 placeholder = "Value"
                 style = {styles.inputs}
-            ></TextInput>
-            <TouchableOpacity style = {styles.button}>
+                value = {nome}
+                onChangeText = {setNome}
+            />
+            <TouchableOpacity style = {styles.button} onPress={cadastrar}>
                 <Text style={ styles.txtButton }>Salvar</Text>
             </TouchableOpacity>
         </View>

@@ -1,193 +1,179 @@
 import React, {useState, useEffect} from "react";
-import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity, ScrollView } from "react-native"
-import RNPickerSelect from 'react-native-picker-select'
+import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity, ScrollView, Image } from "react-native"
 import { router } from "expo-router";
 import Camera from "../camera";
+import axios from "axios";
+import * as ImagePicker from 'expo-image-picker'
+import {Picker} from "@react-native-picker/picker";
+
 
 export default function Tab() {
 
-    const {photoUri} = Camera();
+const api = axios.create({
+      baseURL:'https://api-produtos-6p7n.onrender.com',
+      headers: {'Content-Type':'application/json'}
+    });
 
+
+    const [categories, setCategories] = useState([]);
+    const [locations, setLocations] = useState([]);
+    const [preco, setPreco] = useState(0);
+    const [nome, setNome] = useState('');
+    const [categoria, setCategoria] = useState('');
     const [local, setLocal] = useState('');
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState('');
-    const [category, setCategory] = useState('');
-    const [observation, setObservation] = useState('');
-    const [loading, setLoading] = useState(false);
+    const [descricao, setDescricao] = useState('');
+    const [selectedImage, setSelectedImage] = useState(null);
 
-    const [options, setOptions] = useState([]);
-    const [selectedOption, setSelectedOption] = useState(null);
+    useEffect(() => {
+      async function loadCategories(){
+        const response = await api.get('/categories');
+        setCategories(response.data);
+      }
+
+      async function loadLocations(){
+        const response = await api.get('/locations');
+        setLocations(response.data);
+      }
+
+      loadCategories();
+      loadLocations();
+
+    }
+      , []);
+
+    const pickImage = async () => {
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+      if(permissionResult.granted === false){
+        alert("Permissão para acessar a galeria é necessária!");
+        return;
+      }
+
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if(!result.canceled){
+        setSelectedImage(result.assets[0].uri);
+      }
+    };
+
+    const removeImage = () => {
+      setSelectedImage(null);
+    }
+
     
-    const [categorias, setCategorias] = useState([]);
-    const [selectedCategoria, setSelectedCatoria] = useState(null);
-
     const openCamera = () => {
       router.navigate("camera");
     }
+    
+    const cadastrar = async () => {
+      const data = new FormData();
+      data.append('nome', nome);
+      data.append('preco', preco);
+      data.append('descricao', descricao);
+      data.append('usuario', 'Osvaldo');
+      data.append('categoriaId', categoria);
+      data.append('localId', local);
+      data.append('image', {
+        uri: selectedImage,
+        type: 'image/jpeg',
+        name: 'image.jpg',
+      })
 
-    const handleSubmit = async () => {
-      if (!selectedOption || !name || !price || !selectedCategoria) {
-        Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios.');
-        return;
+      const url = "https://api-produtos-6p7n.onrender.com/products";
+
+      const response = await fetch(url,{
+        method: 'POST',
+        body: data,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if(response.status === 201){
+        alert('Produto cadastrado com sucesso!');
+      }else{
+        alert('Erro ao cadastrar o produto!');
       }
-    
-      console.log("Salvando dados para enviar...");
-      setLoading(true);
-    
-      const formData = new FormData();
-      formData.append('local', selectedOption);
-      formData.append('nome', name);
-      formData.append('preco', price);
-      formData.append('categoria', selectedCategoria);
-      formData.append('observacao', observation);
-      
-    
-      try {
-        const response = await fetch('https://api-produtos-6p7n.onrender.com/products', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-          body: formData,
-        });
-    
-        console.log(response)
-
-        if (response.ok) {
-          Alert.alert('Sucesso', 'Produto cadastrado com sucesso!');
-          // Limpa os campos
-          setLocal('');
-          setName('');
-          setPrice('');
-          setCategory('');
-          setObservation('');
-          setSelectedOption(null);
-          setSelectedCategoria(null);
-        } else {
-          Alert.alert('Erro', 'Ocorreu um problema ao cadastrar o produto.');
-        }
-      } catch (error) {
-        console.error('Erro ao salvar o produto:', error);
-        Alert.alert('Erro', 'Não foi possível salvar o produto.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    
-  
-    useEffect(() => {
-      // Fazendo a requisição
-      const fetchData = async () => {
-        try {
-          const response = await fetch('https://api-produtos-6p7n.onrender.com/locations');
-          const data = await response.json();
-          const formattedOptions = data.map((item) => ({
-            label: item.nome,
-            value: item.nome
-          }));
-
-          setOptions(formattedOptions);
-        } catch (error) {
-          console.error('Erro ao buscar dados: ', error);
-        }
-      };
-  
-      fetchData();
-    }, []);
-
-    useEffect(() => {
-      const fetchData = async () => {
-        try{
-          const response = await fetch('https://api-produtos-6p7n.onrender.com/categories');
-          const data = await response.json();
-          const formattedData = data.map((item) => ({
-            label: item.nome,
-            value: item.nome
-          }));
-          setCategorias(formattedData);
-        }catch(error){
-          console.log('Erro ao buscar dados: ', error)
-        }
-      };
-      fetchData();
-    },[]);
-
-    return (
+    }
+ return (
       <ScrollView>
         <View style={styles.container}>
           <Text style={styles.labelTxt}>Local *</Text>
           <View style = {styles.pickerContainer}>
-            <RNPickerSelect 
-              onValueChange={(value) => setSelectedOption(value)}
-              items={options}
-              placeholder={{ label: 'Value', value: null }}
-              value={selectedOption}
-            />
+            <Picker
+              selectedValue={local}
+              onValueChange={(itemValue, itemIndex) => setLocal(itemValue)}
+            >
+              <Picker.Item label="Selecione um local..." value="" />
+              {locations.map(location => (
+                <Picker.Item key={location.id} label={location.nome} value={location.id} />
+              ))}
+            </Picker>
           </View>
-          <TouchableOpacity onPress={console.log({selectedOption})}>
+          <TouchableOpacity>
             <Text style={styles.suggestLink}>Sugerir Local</Text>
           </TouchableOpacity>
           <Text style={styles.labelTxt}>Nome *</Text>
           <TextInput 
             placeholder = "Value" 
             style = {styles.input}
-            value = {name}
-            onChangeText = {setName}  
+            value = {nome}
+            onChangeText = {setNome}  
           />
           <Text style={styles.labelTxt}>Preço *</Text>
           <TextInput 
             placeholder = "Value" 
             style = {styles.input}
-            value = {price}
-            onChangeText = {setPrice}
+            value = {preco}
+            onChangeText = {setPreco}
             keyboardType = "numeric"  
           />
           <Text style={styles.labelTxt}>Categoria *</Text>
-          <View style={styles.pickerContainer}>
-          <RNPickerSelect 
-              onValueChange={(value) => setSelectedCatoria(value)}
-              items={categorias}
-              placeholder={{ label: 'Value', value: null }}
-              value={selectedCategoria}
-            />
-          </View>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={categoria}
+                onValueChange={(itemValue, itemIndex) => setCategoria(itemValue)}
+              >
+                <Picker.Item label="Selecione uma categoria..." value="" />
+                {categories.map(category => (
+                  <Picker.Item key={category.id} label={category.nome} value={category.id} />
+                ))}
+              </Picker>
+            </View>
           <Text style={styles.labelTxt}>Observação</Text>
           <TextInput 
             placeholder = "Value" 
             style = {styles.inputObs} 
-            value = {observation}
-            onChangeText = {setObservation}
+            value = {descricao}
+            onChangeText = {setDescricao}
             multiline
           />
 
           <Text style={styles.labelTxt}>Fotos *</Text>
           <View style={styles.containerFoto}>
-            <TouchableOpacity style={styles.btnFoto} onPress = {openCamera}>
+            <TouchableOpacity style={styles.btnFoto} onPress = {pickImage}>
               <Text style={styles.btnTxt}>Adicionar foto</Text>
             </TouchableOpacity>
-            {photoUri ? (
-              <View>
-                <Image source = {{uri: photoUri}}/>
-                <TouchableOpacity>
-                  <Text>Excluir</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <Text>Nenhuma imagem selecionada</Text>
-            )}
+            <View>
+              {
+                selectedImage && (
+                  <Image source={{uri: selectedImage}} style={{width: 100, height: 100, marginHorizontal: 6 }} />
+                )
+              }
+            </View>
           </View>
 
         <TouchableOpacity
-          style={[styles.button, loading && { opacity: 0.7 }]}
-          onPress={handleSubmit}
-          disabled={loading}
+          style={styles.button}
+          onPress={cadastrar}
         >
-          <Text style={styles.btnTxt}>
-            {loading ? 'Salvando...' : 'Salvar'}
-          </Text>
+          <Text style={styles.btnTxt}>Salvar</Text>
         </TouchableOpacity>
-
         </View>
       </ScrollView>
     );
@@ -243,7 +229,7 @@ const styles = StyleSheet.create({
     },
     containerFoto: {
       width: 350,
-      height: 100,
+      height: 150,
       marginLeft: 15,
       borderWidth: 1,
       borderColor: "#ccc",
