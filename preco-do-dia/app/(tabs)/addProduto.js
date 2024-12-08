@@ -1,7 +1,5 @@
 import React, {useState, useEffect} from "react";
 import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity, ScrollView, Image } from "react-native"
-import { router } from "expo-router";
-import Camera from "../camera";
 import axios from "axios";
 import * as ImagePicker from 'expo-image-picker'
 import {Picker} from "@react-native-picker/picker";
@@ -64,13 +62,14 @@ const api = axios.create({
     const removeImage = () => {
       setSelectedImage(null);
     }
-
-    
-    const openCamera = () => {
-      router.navigate("camera");
-    }
     
     const cadastrar = async () => {
+
+      if(!nome || !preco || !categoria || !local || !selectedImage){
+        alert("Erro ao cadastrar produto, preencha todos os campos obrigatórios");
+        return;
+      }
+
       const data = new FormData();
       data.append('nome', nome);
       data.append('preco', preco);
@@ -96,6 +95,12 @@ const api = axios.create({
 
       if(response.status === 201){
         alert('Produto cadastrado com sucesso!');
+        setNome("");
+        setPreco("");
+        setDescricao("");
+        setCategoria("");
+        setLocal("");
+        setSelectedImage(null);
       }else{
         alert('Erro ao cadastrar o produto!');
       }

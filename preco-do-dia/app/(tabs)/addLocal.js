@@ -78,6 +78,15 @@ const addLocal = () => {
                 const data = await response.json();
                 console.log('Location added:', data);
                 alert("Local cadastrado com sucesso!");
+                setLoc({
+                    nome: '',
+                    cep: '',
+                    logradouro: '',
+                    numero: '',
+                    bairro: '',
+                    cidade: '',
+                    estado: '',
+                });
             } else {
                 alert("Erro ao cadastrar local!");
             }

@@ -20,6 +20,7 @@ const addCategoria = () => {
 
         if(response.status == 201){
             alert("Categoria cadastrado com sucesso!");
+            setNome("");
         }else{
             alert("Erro ao cadastrar a categoria!");
         }
