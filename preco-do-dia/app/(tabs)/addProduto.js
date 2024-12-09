@@ -8,7 +8,7 @@ import {Picker} from "@react-native-picker/picker";
 export default function Tab() {
 
 const api = axios.create({
-      baseURL:'https://api-produtos-6p7n.onrender.com',
+      baseURL:'https://api-produtos-9jmi.onrender.com',
       headers: {'Content-Type':'application/json'}
     });
 
@@ -83,7 +83,7 @@ const api = axios.create({
         name: 'image.jpg',
       })
 
-      const url = "https://api-produtos-6p7n.onrender.com/products";
+      const url = "https://api-produtos-9jmi.onrender.com/products";
 
       const response = await fetch(url,{
         method: 'POST',

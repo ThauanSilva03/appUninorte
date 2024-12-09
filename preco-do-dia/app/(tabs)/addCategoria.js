@@ -12,7 +12,7 @@ const addCategoria = () => {
 
         console.log(data);
 
-        const url = "https://api-produtos-6p7n.onrender.com/categories/add"
+        const url = "https://api-produtos-9jmi.onrender.com/categories/add"
 
         const response = await axios.post(url, data);
 

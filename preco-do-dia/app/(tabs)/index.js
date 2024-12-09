@@ -14,7 +14,7 @@ export default function ProductList() {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("https://api-produtos-6p7n.onrender.com/products");
+      const response = await axios.get("https://api-produtos-9jmi.onrender.com/products");
       setProducts(response.data);
       setFilteredProducts(response.data); // Inicializa produtos filtrados com todos os produtos
     } catch (error) {
@@ -39,7 +39,7 @@ export default function ProductList() {
   const renderProduct = ({ item }) => (
     <View style={styles.card}>
       <Image
-        source={{ uri: `https://api-produtos-6p7n.onrender.com/${item.image}` }}
+        source={{ uri: `https://api-produtos-9jmi.onrender.com/${item.image}` }}
         style={styles.image}
       />
       <View style={styles.infoContainer}>

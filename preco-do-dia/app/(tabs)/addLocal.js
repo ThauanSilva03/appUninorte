@@ -7,7 +7,7 @@ const addLocal = () => {
 
 
     const api = axios.create({
-        baseURL: "https://api-produtos-6p7n.onrender.com",
+        baseURL: "https://api-produtos-9jmi.onrender.com",
         headers: {'Content-Type':'application/json'}
     });
 
@@ -63,7 +63,7 @@ const addLocal = () => {
 
     const cadastrar = async (loc) => {
         try {
-            const url = 'https://api-produtos-6p7n.onrender.com/locations';
+            const url = 'https://api-produtos-9jmi.onrender.com/locations';
     
             const response = await fetch(url, {
                 method: 'POST', 
