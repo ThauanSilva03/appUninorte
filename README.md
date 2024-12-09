@@ -1,3 +1,4 @@
+
 # Preço do Dia
 
 O aplicativo **Preço do Dia** foi desenvolvido como método de avaliação para concluir a matéria de desenvolvimento de aplicativos na faculdade de **Análise e Desenvolvimento de Sistemas** da **UNINORTE**.
@@ -67,12 +68,6 @@ O aplicativo consome as seguintes APIs:
 - **`react-native-picker-select`**: Dropdowns personalizados para seleção de dados.  
 - **`expo-camera`**: Gerenciamento de permissões e uso da câmera no dispositivo.  
 - **`@expo/vector-icons` (Ionicons)**: Ícones personalizados utilizados na interface do aplicativo.
-## Requisitos para instalação
-
-1. Node.js (versão 16 ou superior).
-2. Gerenciador de pacotes **npm** ou **yarn**.
-3. **Expo Go** instalado no celular:
-   - [Baixar Expo Go para Android](https://play.google.com/store/apps/details?id=host.exp.exponent)
 
 ---
 
@@ -85,19 +80,25 @@ O aplicativo consome as seguintes APIs:
    npm install -g expo-cli
    ```
 
-2. Após clonar o repositório, instale as dependências utilizando o comando:  
+2. clone o repositório do projeto:  
+   ```bash
+   git clone https://github.com/ThauanSilva03/appUninorte.git
+   cd appUninorte/preco-do-dia/
+   ```
+
+3. Instale as dependências utilizando o comando:  
    ```bash
    npm install
    ```
 
-3. Caso precise instalar pacotes específicos mencionados acima, execute os comandos abaixo:  
+4. Caso precise instalar pacotes específicos mencionados acima, execute os comandos abaixo:  
    ```bash
    npm install react-native-picker-select expo-camera expo-router @expo/vector-icons
    ```
 
-4. Inicie o servidor Expo para executar o aplicativo:  
+5. Inicie o servidor Expo para executar o aplicativo:  
    ```bash
    npx expo start -c
    ```
 
-5. Abra o aplicativo **Expo Go** no celular e escaneie o QR Code gerado no terminal ou na interface do Expo.
+6. Abra o aplicativo **Expo Go** no celular e escaneie o QR Code gerado no terminal ou na interface do Expo.
